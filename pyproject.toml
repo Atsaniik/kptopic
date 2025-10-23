@@ -19,8 +19,19 @@ classifiers = [
 ]
 dependencies = [ # Packages your code needs to run
  
-    'networkx','leidenalg','autocorrect','xlsxwriter','igraph','matplotlib','numpy','emoji', 
-    'coreferee_spacy': ['coreferee','spacy<3.4.1,>=3.0.0'] , 'crosslingual-coreference_spacy':['crosslingual-coreference','spacy']
+     
+    "networkx",
+    "leidenalg",
+    "autocorrect",
+    "xlsxwriter",
+    "igraph",
+    "matplotlib",
+    "numpy",
+    "emoji",
+    "coreferee",
+    "spacy>=3.0.0,<3.4.1",
+    "crosslingual-coreference"
+
 ]
 
 [project.urls]
