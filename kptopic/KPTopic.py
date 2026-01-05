@@ -250,7 +250,7 @@ def communKPT(G, min_weight=1, k_clique=3, topicN=True, maxNOUNtopic=5):
         #print(f"K-clique failed on filtered graph: {e}. Falling back to original G.")
         communities = list(nx.community.k_clique_communities(G, k=k_clique))
         source_G = G
-
+    communities = sorted(list(communities), key=len, reverse=True)  # add 05.Jan.2026
     # 3. Handle Topic Generation
     if topicN:
         # Assuming nounKPT is defined elsewhere
@@ -648,4 +648,5 @@ if __name__ == "__main__":
     Edges: {'Finland_2noun': 1, 'delicious_2adj': 1, 'drink_2noun': 1, 'good_2adj': 1, 'lot_2noun': 1, 'have_2verb': 1, 'recommend_2verb': 0, 'eat_2verb': -1, '\u200d_2noun': -1, '♂_2noun': -1}
 
     Example Output (Topic Sentence):
+
     "In Finland, the food is generally good and delicious, with plenty of drinks available, though some dishes may not be enjoyable or suitable for everyone."""
