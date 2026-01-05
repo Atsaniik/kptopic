@@ -318,9 +318,9 @@ def netKPT(edgesDF,col1 = 'node1',col2 = 'node2',col1a ='node1a',col2a='node2a',
             vis_description_title = "Introduce your network",
             vis_writeHTML = "network_visualization.html",
             vis_browserView= False,
-            vis_min_default_node_size= 0,
-            vis_min_default_edge_width = 0,
-            vis_maximum_display = 100):
+            vis_min_default_node_size= -1000,
+            vis_min_default_edge_width = -1000,
+            vis_maximum_display = 200):
     """semantic edges to be cleaned and weighted for creating topics 
 
     Args:
@@ -650,3 +650,4 @@ if __name__ == "__main__":
     Example Output (Topic Sentence):
 
     "In Finland, the food is generally good and delicious, with plenty of drinks available, though some dishes may not be enjoyable or suitable for everyone."""
+
