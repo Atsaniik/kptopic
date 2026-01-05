@@ -586,7 +586,7 @@ def cleanText(text, nlp, det=None, valid_particles =None, number_words=True, cle
                 # Check children for particles
                 for child in token.children:
                     if (child.text.lower() in valid_particles 
-                        and child.dep_ in {"prt", "prep"}):
+                        and child.dep_ == "prt"):
                         
                         # We found a phrasal verb (e.g., "took ... off")
                         lemma_phrase = f"{token.lemma_} {child.text.lower()}"
@@ -1225,4 +1225,5 @@ if __name__ == "__main__":
     for edge in sorted(edges):
         
         print(edge)
+
     
