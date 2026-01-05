@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kptopic" # The name that will appear on PyPI
-version = "0.0.4"
+version = "0.0.5"
 authors = [
     {name = "Peng (Atsaniik) Yang", email = "peng.yang@uef.fi"},
 ]
@@ -21,11 +21,10 @@ dependencies = [ # Packages your code needs to run
  
      
     "networkx",
-    "leidenalg",
     "matplotlib",
     "numpy",
     "spellchecker",
-    "spacy>=3.0.0,<3.4.1",
+    "spacy",
     "nltk",
    
 
@@ -37,6 +36,7 @@ dependencies = [ # Packages your code needs to run
 
 [tool.setuptools.packages]
 find = {} # Automatically find all packages
+
 
 
 
