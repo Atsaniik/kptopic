@@ -199,65 +199,6 @@ def merge_emoji_tokens(doc):
     return doc
 
 
-#spell = SpellChecker()
-def spellCorrect_deprecated(text,nonCheckWords = [],uniDecode=0,uni2asc = UNICODE_TO_ASCII)-> str:
-    """correct the spelling of words
-
-    Args:
-        text (str): string of any text 
-        nonCheckWords (list, optional): a list of words that not flagged as misspelled. Defaults to [].
-
-    Returns:
-        str: spelling corrected text 
-    """
-    text=  re.sub(r'([.?!])(?=[^\s])', r'\1 ', text)
-    #print(text)
-    if uniDecode ==1: # remove emjoi and turn sepcial character to english letters such as Ä to A 
-        text = unidecode(text) 
-    elif uniDecode ==2:
-        text = convert_specific_unicode(text,uni2asc)
-    
-    text = re.sub(r'\s+', ' ', text).strip()
-    # Initialize the spell checker
-    
-    spell.word_frequency.load_words(nonCheckWords)
-
-    tokens = re.findall(r"(\w+['']?\w*|[^\w\s]+|\s+)", text, re.IGNORECASE)
-    
-    corrected_tokens = []
-    
-    for token in tokens:
-        # Check if the token is a word (contains at least one letter)
-        if re.search(r'[a-zA-Z]', token):
-            
-            # The token is a word, so we check for misspellings.
-            #  must use .lower() for the lookup, as the dictionary is lowercase.
-            word_to_check = token.lower()
-            
-            # Use .unknown() to efficiently check against the dictionary
-            if word_to_check in spell.unknown([word_to_check]):
-                # Get the most probable correction
-                correction = spell.correction(word_to_check)
-                
-                # If a correction is found, re-capitalize the first letter 
-                # to match the original sentence's style (if it was capitalized).
-                if correction and token[0].isupper():
-                    corrected_tokens.append(correction.capitalize())
-                elif correction:
-                    corrected_tokens.append(correction)
-                else:
-                    # Fallback to the original token if no correction is found
-                    corrected_tokens.append(token)
-            else:
-                # The word is correctly spelled, keep it as is
-                corrected_tokens.append(token)
-        else:
-            # The token is punctuation, emoji, or space, so we keep it as is
-            corrected_tokens.append(token)
-            
-    # Join all tokens back together to form the corrected sentence
-    return "".join(corrected_tokens)
-
 
 def is_ascii_word(word):
     try:
@@ -395,6 +336,11 @@ class MaverickCoref:
         return " ".join([tok for tok in resolved_tokens if tok])
    
 
+def replace_word(text, old, new, case_insensitive=True):
+    "replace strictly of words of old to new but protect the other forms such as old.com , older"
+    flags = re.IGNORECASE if case_insensitive else 0
+    pattern = rf'(?<![\w@./?&=#-]){re.escape(old)}(?![\w.])'
+    return re.sub(pattern, new, text, flags=flags)
 
 
 
@@ -424,7 +370,7 @@ def verbPhrase(doc):
         for child in token.children:
             if (
                 child.text.lower() in valid_particles
-                and child.dep_ in {"prt", "prep"}
+                and child.dep_ == "prt" #   child.dep_ == in {"prt", "prep"} deprecated on 6.01.2026
             ):
                 phrase_parts.append(child.text)
                 #print('new_phrase', child.text,doc[token.i +1])
@@ -586,7 +532,7 @@ def cleanText(text, nlp, det=None, valid_particles =None, number_words=True, cle
                 # Check children for particles
                 for child in token.children:
                     if (child.text.lower() in valid_particles 
-                        and child.dep_ == "prt"):
+                        and child.dep_ == "prt"):   #  child.dep_ == "prt" updated 6.jan.2026 , child.dep_ in {"prt", "prep"}) 
                         
                         # We found a phrasal verb (e.g., "took ... off")
                         lemma_phrase = f"{token.lemma_} {child.text.lower()}"
@@ -1225,5 +1171,4 @@ if __name__ == "__main__":
     for edge in sorted(edges):
         
         print(edge)
-
     
