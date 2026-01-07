@@ -477,7 +477,9 @@ def cleanDetNum(text,nlp:Language, det=["a", "an", "the"],numberWords =True ):
 
 
 
-def cleanText(text, nlp, det=None, valid_particles =None, number_words=True, clean_emoji=False, heavy_number = False,verbPhrase = False, extraClean = False):
+def cleanText(text, nlp, det=None, valid_particles =None, number_words=True, clean_emoji=False, heavy_number = False,verbPhrase = False, extraClean = False
+              ,reADJ=['meilide'], reADV=['piaoliangdi'],reVERB=['caiquxingdong'], 
+              reNOUN=['Natural Language Processing'],reENT = True,hyphenated = True,):
     """
     Integrates text cleaning (removing determiners, numbers, URLs, emails) 
     with phrasal verb detection and normalization.
@@ -501,7 +503,10 @@ def cleanText(text, nlp, det=None, valid_particles =None, number_words=True, cle
     if det is None:
         det = ["a", "an", "the"]
         
-    doc = nlp(text)
+    #doc = nlp(text)
+    doc = docRetoken(text, nlp,reADJ=reADJ, reADV=reADV,
+                         reVERB=reVERB , reNOUN=reNOUN,
+                         reENT = reENT,hyphenated = hyphenated)
     
     # --- Output Containers ---
     cleaned_tokens = []
@@ -612,7 +617,7 @@ def cleanText(text, nlp, det=None, valid_particles =None, number_words=True, cle
                         continue
       
       
-
+        #print('clean_text process --------', token.text )
         # 6. Text Reconstruction
         if verbPhrase:
             if token.i in verb_replacements:
@@ -738,7 +743,7 @@ def get_all_conjuncts(token):
 
 
 def semanticEdges(doc,NEG_Lemmas = {"no", "not", "n't", "never", "none", "nothing", "nobody", "neither","nor"},
-                            nonSemantic = 0, NN = 'notInclude'):
+                            nonSemantic = 0, NN = 'notInclude',copulaBridge = True):
     """
     Analyzes doc and extracts a set of ANNOTATED semantic edges
     with POS/NEG negation labels.
@@ -751,6 +756,7 @@ def semanticEdges(doc,NEG_Lemmas = {"no", "not", "n't", "never", "none", "nothin
         NEG_lemaas(set,optional): set of negating lemaas. Defaults to {"no", "not", "n't", "never", "none", "nothing", "nobody", "no one", "neither","nor"}
         nonSemantic(digit,optional): if nonSemantic = 1, then generate avn edges of non semantic text adj-adv, adj-noun, adv-verb, verb-noun 
         NN: (vaule: [inlcude, only , notInclude] ) noun-noun type nonSemantic edges, othervise A-A-V-N edge
+        copulaBridge (bool): Finland is beautiful add one extra edge Finland-beautiful connected by copula Be , otherwise only Finland-be, be-beautiful 
     Returns:
         list: semantic edges with Negation labels  
     """
@@ -796,6 +802,33 @@ def semanticEdges(doc,NEG_Lemmas = {"no", "not", "n't", "never", "none", "nothin
                     if v.i > 0 and v.nbor(-1).lemma_.lower() in NEG_Lemmas:
                         suffix = "NEG"
                     edges.add(f"{v.lemma_}-{o.lemma_} (VERB-NOUN {suffix})")
+                    
+            # Rule 7: COMPREHENSIVE COPULA BRIDGE (Subject -> Attribute's Adjective)
+            # Handles: "We become beautiful girls", "Finland is a safe country" to have We-beautiful , Finland-safe
+            if dep == 'attr' and head.pos_ in ('VERB', 'AUX') and copulaBridge:
+                # 1. Find the subjects of the copular verb (e.g., "We", "Finland")
+                subjects = [c for c in head.children if c.dep_ in ('nsubj', 'nsubjpass')]
+                
+                # 2. Find adjectives modifying this attribute noun (e.g., "beautiful", "safe")
+                # We look for 'amod' (adjectival modifiers)
+                adjectives = [c for c in token.children if c.dep_ == 'amod']
+                
+                for s in subjects:
+                    subj_conj = get_all_conjuncts(s)
+                    for sc in subj_conj:
+                        for adj in adjectives:
+                            adj_conj = get_all_conjuncts(adj)
+                            for ac in adj_conj:
+                                local_suffix = suffix
+                                # Check for local negation (e.g., "We become not-so-beautiful girls")
+                                if ac.i > 0 and ac.nbor(-1).lemma_.lower() in NEG_Lemmas:
+                                    local_suffix = "NEG"
+                                
+                                # Adding as NOUN-ADJ per your request (even if the subject is a pronoun like 'we')
+                                edges.add(f"{sc.lemma_}-{ac.lemma_} (NOUN-ADJ {local_suffix})")                
+    
+    
+    
 
         # Rule 3: ADJ-NOUN (Adjectival Modifier)
         # e.g., "wonderful food", "no tasty food"
@@ -995,7 +1028,7 @@ def edges2DF(edges,sentiScore = True):
         split_result = re.split(split_pattern, edge)
         #print(split_result)
         
-        nodes = split_result[0].strip().split("-")
+        nodes = split_result[0].strip().rsplit('-', 1)   # "Onze-Lieve-Vrouwekerk-be" to parts[0] -> "Onze-Lieve-Vrouwekerk"  parts[1] -> "be"
         #print(nodes)
         node1 = nodes[0]
         node2 = nodes[1]
