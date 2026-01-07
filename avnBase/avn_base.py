@@ -501,7 +501,7 @@ def cleanText(text, nlp, det=None, valid_particles =None, number_words=True, cle
     """
     if det is None:
         det = ["a", "an", "the"]
-        
+    text = re.sub(r'([()\[\]{}])', r' \1 ', text)  # make space before and after both (,)
     #doc = nlp(text)
     doc = docRetoken(text, nlp,reADJ=reADJ, reADV=reADV,
                          reVERB=reVERB , reNOUN=reNOUN,
@@ -635,9 +635,11 @@ def cleanText(text, nlp, det=None, valid_particles =None, number_words=True, cle
     # Join cleaned text
     final_text = " ".join(cleaned_tokens)
     
-    # Cleanup extra spaces around punctuation (optional polish)
+    
     if extraClean:
-        final_text = re.sub(r'\s+([?.!,"])', r'\1', final_text)
+        #final_text = re.sub(r'\s+([?.!,"])', r'\1', final_text) # Cleanup extra spaces around punctuation (optional polish)
+        final_text = re.sub(r'\(.*?\)', '', final_text)  # remove () Remove parentheses and everything inside them
+        final_text = re.sub(r'\s+', ' ', final_text).strip()
 
     return final_text, unique_phrases, emails, urls, emojis
 
@@ -1036,7 +1038,7 @@ def edges2DF(edges,sentiScore = True):
         #print(pospes)
         pospe1 = pospes[0]
         pospe2 = pospes[1]
-
+        #print(pospes)
         weight0 = pospos[1]
         if weight0 =='POS':
             weight = 1
