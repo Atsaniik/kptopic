@@ -454,9 +454,9 @@ def netKPT(edgesDF,col1 = 'node1',col2 = 'node2',col1a ='node1a',col2a='node2a',
         else:
             color = 'black'; shape = 'dot'; title = 'non AAVN'
         if visNoPOS:
-            visNode = {"id": node, "label": node.split("_2")[0], "size": degree, "color": color, "shape": shape, "title": title}
+            visNode = {"id": node, "label": node.split("_2")[0], "size": degree, "color": color, "shape": shape, "title": f"{title}-{degree}"}
         else:
-            visNode = {"id": node, "label": node, "size": degree, "color": color, "shape": shape, "title": title}
+            visNode = {"id": node, "label": node, "size": degree, "color": color, "shape": shape, "title": f"{title}-{degree}"}
         visNodes.append(visNode)
         
     visEdges = []
@@ -650,4 +650,5 @@ if __name__ == "__main__":
     Example Output (Topic Sentence):
 
     "In Finland, the food is generally good and delicious, with plenty of drinks available, though some dishes may not be enjoyable or suitable for everyone."""
+
 
