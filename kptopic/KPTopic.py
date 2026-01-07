@@ -3,7 +3,7 @@ from visBase.vis_base import visnet
 import networkx as nx
 import spacy
 import pandas as pd 
-
+from tqdm import tqdm
 from datetime import datetime
 import time
 
@@ -15,13 +15,13 @@ nlp.add_pipe("custom_sentencizer", before="parser")
 
 import sys
 
-def print_progress(current, total, bar_length=20):
+def print_progress(current, total, bar_length=20,printText ='Generating AAVN Edges'):
     percent = current / total * 100
     filled_length = int(bar_length * current / total)
     bar = '█' * filled_length + '-' * (bar_length - filled_length)
 
     sys.stdout.write(
-        f'\rGenerating AAVN Edges: |{bar}| {percent:6.2f}% Complete '
+        f'\r{printText}: |{bar}| {percent:6.2f}% Completed. '
     )
     sys.stdout.flush()
 
@@ -45,7 +45,8 @@ def semanticX(data, text_column='text',nlpModel=None, spellCheck = True,nonCheck
               NEG_Lemmas = {"no", "not", "n't", "never", "none", "nothing", "nobody", "neither","nor"},
               nonSemantic = 0, NN = 'notInclude',
               sentiScore = True, 
-              UNICODE_TO_ASCII =  {'’': "'", '‘': "'", '“': '"',  '”': '"',  '–': '-', '—': '-',  '…': '...',}
+              UNICODE_TO_ASCII =  {'’': "'", '‘': "'", '“': '"',  '”': '"',  '–': '-', '—': '-',  '…': '...',},
+              verbose = True
               ):
     """turn text to AAVN semantic edges 
 
@@ -54,7 +55,7 @@ def semanticX(data, text_column='text',nlpModel=None, spellCheck = True,nonCheck
         text_column (str, optional): text column name. Defaults to 'text'.
         nlpModel(spacy language model pipline): Defauts to  nlp = spacy.load("en_core_web_sm")
         spellCheck(bool): corret the words spellings , Defuats to True.
-        nonCheckWords (list): the words are not to be corrected 
+        nonCheckWords (list): the words are not to be corrected, 1 word by 1 and case sensative such as Peng Yang should be ['Peng','Yang'] not ['peng','yang'] or ['Peng Yang']
         coreference (bool, optional): if coreferee text. Defaults to False.  # pip install torch transformers hydra-core pytorch-lightning, pip install --no-deps git+https://github.com/Atsaniik/maverick-coref.git
         corefPath (_type_, optional): the model path. Defaults to None.    # hf download sapienzanlp/maverick-mes-preco --local-dir ./maverick-mes-preco # hf download sapienzanlp/maverick-mes-ontonotes --local-dir ./maverick-ontonotes
         det (list, optional):det. if None, Defaults to ["a", "an", "the"].
@@ -79,7 +80,7 @@ def semanticX(data, text_column='text',nlpModel=None, spellCheck = True,nonCheck
         sentiScore (bool, optional): add sentiment score of edge. Defaults to True.
         reNameNode (bool, optional): add A-A-V-N label to each word ends. Defaults to True.
         UNICODE_TO_ASCII (dict, optional): change the unicode to ascii of English puncs. Defaults to {'’': "'", '‘': "'", '“': '"',  '”': '"',  '–': '-', '—': '-',  '…': '...',}.
-
+        verbose(bool,optional): print the raw text and processed one 
     Returns:
         dataframes: edgesDF,eueDF(email, url,emoji of each row or item of original data)
     """
@@ -115,6 +116,8 @@ def semanticX(data, text_column='text',nlpModel=None, spellCheck = True,nonCheck
     for i,(index, row) in enumerate(df.iterrows(),start=1):
         print_progress(i, total_rows)
         raw_text = row[text_column]
+        if verbose:
+            print(f'raw_text ({i})  {raw_text}')
         raw_text = spaceOut(raw_text)
         #print('space out text', raw_text)
         # Safety check: ensure text is a string
@@ -139,6 +142,8 @@ def semanticX(data, text_column='text',nlpModel=None, spellCheck = True,nonCheck
                                                                          number_words=number_words, clean_emoji=clean_emoji, heavy_number = heavy_number,
                                                                          verbPhrase = verbPhrase, extraClean = extraClean)
         #print('final_text',final_text)
+        if verbose:
+            print(f'processed_text ({i})  {final_text}')
         emails.append(email)
         urls.append(url)
         emojis.append(emoji)
@@ -310,7 +315,7 @@ def netKPT(edgesDF,col1 = 'node1',col2 = 'node2',col1a ='node1a',col2a='node2a',
             minWeightTopic=1,kCliqueCOMMtopic = 2, 
             lowerText = True, minLen =3, keep_emoji = True,
             removeNodes = ['when','how','why','what', 'who', 'around', 'also','that','this','these','those','you','mine','ours','their','her','his','round','go','be','have','is','are','was','were','get'],
-            unifySimliarNodes = True, similarPOS ='NOUN',minSimilar = 0.96,
+            unifySimliarNodes = True, similarPOS ='NOUN',minSimilar = 0.99,
             visualizeNET = False,
             visNoPOS = True,
             vis_network_title = 'Atsaniik',
@@ -320,7 +325,7 @@ def netKPT(edgesDF,col1 = 'node1',col2 = 'node2',col1a ='node1a',col2a='node2a',
             vis_browserView= False,
             vis_min_default_node_size= -1000,
             vis_min_default_edge_width = -1000,
-            vis_maximum_display = 200):
+            vis_maximum_display = 100):
     """semantic edges to be cleaned and weighted for creating topics 
 
     Args:
@@ -368,6 +373,8 @@ def netKPT(edgesDF,col1 = 'node1',col2 = 'node2',col1a ='node1a',col2a='node2a',
         edgesDF_vis: edgesDF weighted by edge groups for visualization;
         visNodes, visEdges : prepare for visnet visualization of the whole network;
     """
+    
+    pbar = tqdm(total=6, desc="Initializing Pipeline")
     # Combine: Remove if either column meets the criteria
     if lowerText:
         edgesDF = edgesDF.map(lambda x: x.lower() if isinstance(x, str) else x)
@@ -412,7 +419,8 @@ def netKPT(edgesDF,col1 = 'node1',col2 = 'node2',col1a ='node1a',col2a='node2a',
        mask2 = (edgesDF[col2a].str.len() < minLen) | (edgesDF[col2a].isin(removeNodes))
        edgesDF1 = edgesDF[~(mask1 | mask2)]    
        
-       
+    pbar.update(1)
+    pbar.set_description("Grouping and aggregating edges")   
     
     if unifySimliarNodes:
         # col1 ='node1',col2='node2', similarPOS ='NOUN',minSimilar = 0.91
@@ -424,7 +432,8 @@ def netKPT(edgesDF,col1 = 'node1',col2 = 'node2',col1a ='node1a',col2a='node2a',
     
     
     
-    
+    pbar.update(1)
+    pbar.set_description("Constructing NetworkX Graph")
     
     
     G = nx.DiGraph() 
@@ -438,6 +447,8 @@ def netKPT(edgesDF,col1 = 'node1',col2 = 'node2',col1a ='node1a',col2a='node2a',
     
     #for u, v, data in G.edges(data=True):
         #print('G1-u-v',u,v)
+    pbar.update(1)
+    pbar.set_description("Processing Node attributes")
 
     # --- 6. Visualization Data ---
     visNodes = []
@@ -458,6 +469,8 @@ def netKPT(edgesDF,col1 = 'node1',col2 = 'node2',col1a ='node1a',col2a='node2a',
         else:
             visNode = {"id": node, "label": node, "size": degree, "color": color, "shape": shape, "title": f"{title}-{degree}"}
         visNodes.append(visNode)
+    pbar.update(1)
+    pbar.set_description("Processing Edge attributes")
         
     visEdges = []
   
@@ -475,7 +488,9 @@ def netKPT(edgesDF,col1 = 'node1',col2 = 'node2',col1a ='node1a',col2a='node2a',
             
         visEdge = {"from": node1, "to": node2, "width": abs(weight), "color": {"color": color}, "arrows": "to", "title": f"weight-sentiment: {weight}-{sentiment}"}
         visEdges.append(visEdge)
-      
+    
+    pbar.update(1)
+    pbar.set_description("Generating topics") 
         
     #topicDFnoun = nounKPT(G,max_topic=maxNOUNtopic) 
     topicDFcomm,topicDFnoun = communKPT(G, min_weight=minWeightTopic, k_clique = kCliqueCOMMtopic,topicN = topicBYnoun , maxNOUNtopic=maxNOUNtopic)
@@ -502,6 +517,8 @@ def netKPT(edgesDF,col1 = 'node1',col2 = 'node2',col1a ='node1a',col2a='node2a',
         min_default_node_size= vis_min_default_node_size,
         min_default_edge_width = vis_min_default_edge_width,
         maximum_display = vis_maximum_display) 
+    pbar.update(1)
+    pbar.close() # Clean up the bar from the terminal
     return topicDFnoun, topicDFcomm,edgesDF1,edgesDF_global, edges_viz,nodeDegreeDF, visNodes, visEdges,similarNodesDF
     
 def visTopic(edges, vis_network_title = 'Atsaniik',
@@ -648,7 +665,4 @@ if __name__ == "__main__":
     Edges: {'Finland_2noun': 1, 'delicious_2adj': 1, 'drink_2noun': 1, 'good_2adj': 1, 'lot_2noun': 1, 'have_2verb': 1, 'recommend_2verb': 0, 'eat_2verb': -1, '\u200d_2noun': -1, '♂_2noun': -1}
 
     Example Output (Topic Sentence):
-
     "In Finland, the food is generally good and delicious, with plenty of drinks available, though some dishes may not be enjoyable or suitable for everyone."""
-
-
