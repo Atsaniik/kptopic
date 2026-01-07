@@ -105,7 +105,7 @@ def word_similarity(word1, word2, pos=wn.NOUN):
 
 
 
-def uniSimilarNodesDF(original_edges, col1 ='node1',col2='node2', pos ='NOUN',minSimilar = 0.91):
+def uniSimilarNodesDF(original_edges, col1 ='node1',col2='node2', pos ='NOUN',minSimilar = 0.91,manual_pairs=None):
     """mapping the high simaliry ndoes in nodes dataframe, e.g. replace time to period , if both in the nodes 
 
     Args:
@@ -113,25 +113,24 @@ def uniSimilarNodesDF(original_edges, col1 ='node1',col2='node2', pos ='NOUN',mi
         col1,col2 : nodes column names
         pos: simliarty coparison by part of speech, only NOUN, VERB 
         minSimilar: set the minimal value of similarity # food drink 0.909 
+        manual_pairs (dict): Optional dictionary of { 'old_value': 'new_value' }
     Return:
            new nodes dataframe replaced simliar words, simlilarity mapping  
     """
     if pos =='NOUN':
         pos1 = wn.NOUN
         pos_cut = '_2noun'
-    elif pos =="VERB":
-        pos1 = wn.NOUN
-        pos_cut = '_2verb'
     else:
-        raise ValueError(f"Unexpected pos found: '{pos}'. we only take NOUN, VERB")
-    noun_nodes = original_edges.node1.tolist() + original_edges.node2.tolist()
+        raise ValueError(f"Unexpected pos found: '{pos}'. we only take NOUN simliarity, please add other pairs manually")
+    noun_nodes = original_edges[col1].tolist() + original_edges[col2].tolist()
     noun_nodes1 = set(noun_nodes)
     noun_nodes2 = [node for node in noun_nodes1 if pos_cut in node]
     
 
     noun_pairs = list(combinations(noun_nodes2, 2))
  
-    simPairs = {}
+    #simPairs = {}
+    simPairs = manual_pairs.copy() if manual_pairs else {}
     for pair in noun_pairs:
         
         word1 = pair[0][:-6]
