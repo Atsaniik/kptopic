@@ -68,7 +68,7 @@ def semanticX(data:pd.DataFrame | List[str], text_column='text',nlpModel=None, s
         clean_emoji (bool, optional): remove emoji. Defaults to False.
         heavy_number (bool, optional): remove all numbers. Defaults to False.
         verbPhrase (bool, optional): if true, then 'take it off' beacome 'take off it' in the new text. Defaults to False.
-        extraClean (bool, optional): remove the extra space. Defaults to False.
+        extraClean (bool, optional): Remove ( xxx ) parentheses and everything inside them. Defaults to False.
         reADJ (list, optional): retokenzie specific adjective. Defaults to ['meilide']. case-sensitive 
         reADV (list, optional): retokenzie specific adverb. Defaults to ['piaoliang'].  case-sensitive 
         reVERB (list, optional): retokenzie specific verb. Defaults to ['caiquxingdong']. case-sensitive 
@@ -233,10 +233,89 @@ def nounKPT(G,max_topic):
     return topicDF
 
 
+import networkx as nx
+import pandas as pd
+
+def communKPT(G, min_weight=1, k_clique=3, louvain_resolution = 1, method='louvain', topicN=True, maxNOUNtopic=5):
+    """
+    Generates communities using either K-clique percolation or Louvain detection.
+    Extracts edges preserving the original source-target order from G.
+    
+    Parameters:
+    - method: 'k-clique' or 'louvain'
+    """
+    # 1. Filter edges based on weight
+    strong_edges = [
+        (u, v) for u, v, d in G.edges(data=True) 
+        if abs(d.get('weight', 1)) >= min_weight
+    ]
+     
+    G2 = G.to_undirected()
+    # Create the filtered graph for community detection
+    G_filtered = G2.edge_subgraph(strong_edges).copy()
+    
+    # 2. Find Communities based on selected method
+    try:
+        if method == 'louvain':
+            # Louvain algorithm (resolves to partitions of the graph)
+            communities = nx.community.louvain_communities(G_filtered, weight='weight',resolution = louvain_resolution)
+        else:
+            # Original K-Clique algorithm
+            communities = nx.community.k_clique_communities(G_filtered, k=k_clique)
+        
+        communities = list(communities)
+        source_G = G_filtered
+        
+    except Exception as e:
+        # Fallback to the original graph if filtering causes issues or k-clique fails
+        if method == 'louvain':
+            communities = list(nx.community.louvain_communities(G, weight='weight',resolution= louvain_resolution))
+        else:
+            communities = list(nx.community.k_clique_communities(G, k=k_clique))
+        source_G = G
+
+    # Sort communities by size (largest first)
+    communities = sorted(communities, key=len, reverse=True)
+
+    # 3. Handle Topic Generation
+    if topicN:
+        # Assuming nounKPT is defined elsewhere in your workspace
+        topicDFnoun = nounKPT(source_G, max_topic=maxNOUNtopic)
+    else:
+        topicDFnoun = pd.DataFrame()
+
+    community_edges = []
+    community_is = []
+    community_nodes = []
+
+    # 4. Extract Data preserving Edge Orientation
+    for i, nodes in enumerate(communities):
+        nodes_set = set(nodes)
+        edges_with_data = []
+        
+        # Iterate over ORIGINAL G edges to maintain 'starting -> targeting' order
+        for u, v, data in G.edges(data=True):
+            if u in nodes_set and v in nodes_set:
+                weight = data.get('weight', None)
+                if weight is not None:
+                    edges_with_data.append((u, v, weight))
+                else:
+                    edges_with_data.append((u, v))
+                    
+        community_edges.append(edges_with_data)
+        community_is.append(i)
+        community_nodes.append(list(nodes))
+        
+    communityDF = pd.DataFrame({
+        'community_no': community_is, 
+        'community_nodes': community_nodes,
+        'community_edges': community_edges
+    })
+    
+    return communityDF, topicDFnoun
 
 
-
-def communKPT(G, min_weight=1, k_clique=3, topicN=True, maxNOUNtopic=5):
+def communKPT_old(G, min_weight=1, k_clique=3, topicN=True, maxNOUNtopic=5):
     """
     Generates communities using k-clique percolation and extracts edges 
     preserving the original source-target order from G.
@@ -255,6 +334,7 @@ def communKPT(G, min_weight=1, k_clique=3, topicN=True, maxNOUNtopic=5):
     # 2. Find Communities
     try:
         communities = list(nx.community.k_clique_communities(G_filtered, k=k_clique))
+        #communities = list(nx.community.louvain_communities(G_filtered))
         source_G = G_filtered
     except Exception as e:
         #print(f"K-clique failed on filtered graph: {e}. Falling back to original G.")
@@ -427,7 +507,11 @@ def netKPT(edgesDF:pd.DataFrame,col1 = 'node1',col2 = 'node2',col1a ='node1a',co
     
     # Node Degrees
     nodeDegree = dict(G.degree(weight="weight")) # type: ignore
-    nodeDegreeDF = pd.DataFrame({'node': list(nodeDegree.keys()), 'nodeDegree': list(nodeDegree.values())}) 
+    nodeDegreeNode0 = list(nodeDegree.keys())
+    nodeDegreeNode1a = [x.split('_2')[0] for x in nodeDegreeNode0]
+    nodeDegreeNode1b = [x.split('_2')[1] for x in nodeDegreeNode0]
+    
+    nodeDegreeDF = pd.DataFrame({'node': nodeDegreeNode0, 'node1': nodeDegreeNode1a, 'nodeDegree': list(nodeDegree.values()),'pos': nodeDegreeNode1b}) 
     nodeDegreeDF = nodeDegreeDF.sort_values(by='nodeDegree', ascending=False)
     
     #for u, v, data in G.edges(data=True):
@@ -437,7 +521,7 @@ def netKPT(edgesDF:pd.DataFrame,col1 = 'node1',col2 = 'node2',col1a ='node1a',co
 
     # --- 6. Visualization Data ---
     visNodes = []
-    for node, degree in zip(nodeDegreeDF.iloc[:, 0], nodeDegreeDF.iloc[:, 1]):
+    for node, degree in zip(nodeDegreeDF.iloc[:, 0], nodeDegreeDF.iloc[:, 2]):
         
         if "_2noun" in node:
             color = colorNOUN; shape= shapeNOUN; title= node
@@ -530,12 +614,13 @@ def visTopic(edges, vis_network_title = 'Atsaniik',
     Returns:
         visnet nodes,visnet edges and nodedegree: visNodesTopic, visEdgesTopic,nodeDegreeDF
     """
-    
+    if len(edges) < 1:
+        raise ValueError("topic edges must have at least 1 edge")
     visNodesTopic, visEdgesTopic,nodeDegreeDF =preVisnet(edges)
     sentiments = []
     for edge in visEdgesTopic:
         sentiments.append (float(edge['title'].split('-')[-1]))
-        
+    
     visDF = pd.DataFrame({
                 "Name": ["Nodes amount", "Edges amount","Ave Sentiment"],
                 "Description": [len((visNodesTopic)), len((visEdgesTopic)),round(sum(sentiments)/len(sentiments),2)]
