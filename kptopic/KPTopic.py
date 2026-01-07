@@ -6,7 +6,7 @@ import pandas as pd
 from tqdm import tqdm
 from datetime import datetime
 import time
-from typing import List, Optional
+from typing import List, Optional,Dict
 
 nlp = spacy.load("en_core_web_sm")
 nlp.add_pipe("custom_sentencizer", before="parser") 
@@ -320,7 +320,7 @@ def netKPT(edgesDF:pd.DataFrame,col1 = 'node1',col2 = 'node2',col1a ='node1a',co
             minWeightTopic=1,kCliqueCOMMtopic = 2, 
             lowerText = True, nodeMinLen =3, keep_emoji = True,
             removeNodes:List[str] = ['when','how','why','what', 'who', 'around', 'also','that','this','these','those','you','mine','ours','their','her','his','round','go','be','have','is','are','was','were','get'],
-            unifySimliarNodes = True, similarPOS ='NOUN',minSimilar = 0.99,
+            unifySimliarNodes = True, similarPOS ='NOUN',minSimilar = 0.99, manual_simPair:Dict[str, str] = {'suomi_2noun': 'finland_2noun'},
             visualizeNET = False,
             visNoPOS = True,
             vis_network_title = 'Atsaniik',
@@ -360,7 +360,8 @@ def netKPT(edgesDF:pd.DataFrame,col1 = 'node1',col2 = 'node2',col1a ='node1a',co
         removeNodes (list, clean edges): remove edges that have the specific nodes. Defaults to ['when','how','why','what','that','this','these','those','you','mine','ours','their','her','his'].
         unifySimliarNodes ( bool ): if unify the simliar nodes in the edges, Defualts to True , only take noun and verb. 
         similarPOS (str, unify nodes by pos): Defautls to 'NOUN',
-        minSimilar (str, unify nodes minimal similarity): Defauts to 0.91 # food drink 0.909 
+        minSimilar (float, unify nodes minimal similarity): Defauts to 0.91 # food drink 0.909 
+        manual_simPair(list of dict): {'helsinki_2noun': 'finland_2noun'}
         visualizeNET (bool): if visualize the semantic network
         visNoPOS(bool): if true, then 'good_2adj' to 'good' in vis
         network_title (str): Defauts to 'Atsaniik'
@@ -408,7 +409,7 @@ def netKPT(edgesDF:pd.DataFrame,col1 = 'node1',col2 = 'node2',col1a ='node1a',co
     
     if unifySimliarNodes:
         # col1 ='node1',col2='node2', similarPOS ='NOUN',minSimilar = 0.91
-        edgesDF1,similarNodesDF = uniSimilarNodesDF(edgesDF1, col1 =col1,col2= col2, pos =similarPOS,minSimilar =minSimilar)
+        edgesDF1,similarNodesDF = uniSimilarNodesDF(edgesDF1, col1 =col1,col2= col2, pos =similarPOS,minSimilar =minSimilar,manual_pairs=manual_simPair)
     
         edgesDF_global = edgesDF1.groupby([col1, col2]).agg(weight=('weight', 'sum')).reset_index()
     else:
