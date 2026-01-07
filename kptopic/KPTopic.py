@@ -6,7 +6,7 @@ import pandas as pd
 from tqdm import tqdm
 from datetime import datetime
 import time
-
+from typing import List, Optional
 
 nlp = spacy.load("en_core_web_sm")
 nlp.add_pipe("custom_sentencizer", before="parser") 
@@ -37,15 +37,16 @@ def custom_tokenizer(nlp):
     return Tokenizer(nlp.vocab, rules=nlp.Defaults.tokenizer_exceptions)
 
 
-def semanticX(data, text_column='text',nlpModel=None, spellCheck = True,nonCheckWords = ['Atsaniik'], coreference = False,corefPath = None,
+def semanticX(data:pd.DataFrame | List[str], text_column='text',nlpModel=None, spellCheck = True,nonCheckWords:List[str] = ['Atsaniik'], coreference = False,corefPath = None,
               det=None, valid_particles =None, number_words=True, clean_emoji=False, 
               heavy_number = False,verbPhrase = False, extraClean = False,
-              reADJ=['meilide'], reADV=['piaoliangdi'],reVERB=['caiquxingdong'], 
-              reNOUN=['Natural Language Processing'],reENT = True,hyphenated = True,
-              NEG_Lemmas = {"no", "not", "n't", "never", "none", "nothing", "nobody", "neither","nor"},
+              reADJ:List[str]=['meilide'], reADV:List[str]=['piaoliangdi'],reVERB:List[str]=['caiquxingdong'], 
+              reNOUN:List[str]=['Natural Language Processing'],reENT = True,hyphenated = True,
+              NEG_Lemmas:set = {"no", "not", "n't", "never", "none", "nothing", "nobody", "neither","nor"},
               nonSemantic = 0, NN = 'notInclude',
               sentiScore = True, 
-              UNICODE_TO_ASCII =  {'’': "'", '‘': "'", '“': '"',  '”': '"',  '–': '-', '—': '-',  '…': '...',},
+              UNICODE_TO_ASCII:dict =  {'’': "'", '‘': "'", '“': '"',  '”': '"',  '–': '-', '—': '-',  '…': '...',},
+              copulaBridge = True,
               verbose = True
               ):
     """turn text to AAVN semantic edges 
@@ -80,6 +81,7 @@ def semanticX(data, text_column='text',nlpModel=None, spellCheck = True,nonCheck
         sentiScore (bool, optional): add sentiment score of edge. Defaults to True.
         reNameNode (bool, optional): add A-A-V-N label to each word ends. Defaults to True.
         UNICODE_TO_ASCII (dict, optional): change the unicode to ascii of English puncs. Defaults to {'’': "'", '‘': "'", '“': '"',  '”': '"',  '–': '-', '—': '-',  '…': '...',}.
+        copulaBridge (bool): Finland is beautiful add one extra edge Finland-beautiful connected by copula Be , otherwise only Finland-be, be-beautiful 
         verbose(bool,optional): print the raw text and processed one 
     Returns:
         dataframes: edgesDF,eueDF(email, url,emoji of each row or item of original data)
@@ -129,7 +131,7 @@ def semanticX(data, text_column='text',nlpModel=None, spellCheck = True,nonCheck
 
         if spellCheck:
             raw_text = spellCorrect(raw_text, nonCheckWords=nonCheckWords)
-            #print('correct text',raw_text)
+            #print(f'correct text ({i})  ',raw_text)
         else:
             pass
         if coreference:
@@ -140,7 +142,10 @@ def semanticX(data, text_column='text',nlpModel=None, spellCheck = True,nonCheck
         #text = cleanDetNum(text, nlp)
         final_text, unique_Verbphrases, email, url, emoji = cleanText(raw_text, nlp, det=det, valid_particles =valid_particles,
                                                                          number_words=number_words, clean_emoji=clean_emoji, heavy_number = heavy_number,
-                                                                         verbPhrase = verbPhrase, extraClean = extraClean)
+                                                                         verbPhrase = verbPhrase, extraClean = extraClean,
+                                                                         reADJ=reADJ, reADV=reADV,
+                                                                         reVERB=reVERB, reNOUN=reNOUN,
+                                                                         reENT = reENT,hyphenated = hyphenated)
         #print('final_text',final_text)
         if verbose:
             print(f'processed_text ({i})  {final_text}')
@@ -162,7 +167,7 @@ def semanticX(data, text_column='text',nlpModel=None, spellCheck = True,nonCheck
             #sent = nlp(sent.text)
             # semanticEdges returns a SET of strings like {'word-word (POS)', ...}
             edges_set = semanticEdges(sent, NEG_Lemmas = NEG_Lemmas,
-                            nonSemantic = nonSemantic, NN = NN)
+                            nonSemantic = nonSemantic, NN = NN,copulaBridge=copulaBridge)
             #print('edges_set',edges_set)
             current_row_edges.extend(list(edges_set))
         
@@ -305,7 +310,7 @@ def has_emoji(series):
 
 
 
-def netKPT(edgesDF,col1 = 'node1',col2 = 'node2',col1a ='node1a',col2a='node2a',
+def netKPT(edgesDF:pd.DataFrame,col1 = 'node1',col2 = 'node2',col1a ='node1a',col2a='node2a',
             colorNOUN = 'skyblue', shapeNOUN= 'box',
             colorADJ = 'gold', shapeADJ = 'triangle',
             colorVERB = 'pink', shapeVERB = 'square',
@@ -313,13 +318,13 @@ def netKPT(edgesDF,col1 = 'node1',col2 = 'node2',col1a ='node1a',col2a='node2a',
             zeroWeightC = 'black',posWeightC ='green',negWeightC ='red',
             topicBYnoun = True, maxNOUNtopic = 5,
             minWeightTopic=1,kCliqueCOMMtopic = 2, 
-            lowerText = True, minLen =3, keep_emoji = True,
-            removeNodes = ['when','how','why','what', 'who', 'around', 'also','that','this','these','those','you','mine','ours','their','her','his','round','go','be','have','is','are','was','were','get'],
+            lowerText = True, nodeMinLen =3, keep_emoji = True,
+            removeNodes:List[str] = ['when','how','why','what', 'who', 'around', 'also','that','this','these','those','you','mine','ours','their','her','his','round','go','be','have','is','are','was','were','get'],
             unifySimliarNodes = True, similarPOS ='NOUN',minSimilar = 0.99,
             visualizeNET = False,
             visNoPOS = True,
             vis_network_title = 'Atsaniik',
-            vis_description_df = None,
+            vis_description_df: Optional[pd.DataFrame] = None,
             vis_description_title = "Introduce your network",
             vis_writeHTML = "network_visualization.html",
             vis_browserView= False,
@@ -329,7 +334,7 @@ def netKPT(edgesDF,col1 = 'node1',col2 = 'node2',col1a ='node1a',col2a='node2a',
     """semantic edges to be cleaned and weighted for creating topics 
 
     Args:
-        edgesDF (_type_): semantic edges dataframe 
+        edgesDF (dataframe): semantic edges dataframe 
         col1 (str, 'good_2adj'): full starting node column name. Defauts to 'node1'
         col2 (str,'food_2noun'): full targeting node column name. Defauts to 'node2
         col1a (str,'good'): starting node column name. Defauts to 'node1a'
@@ -350,7 +355,7 @@ def netKPT(edgesDF,col1 = 'node1',col2 = 'node2',col1a ='node1a',col2a='node2a',
         minWeightTopic (int, optional): set minimal weight absoluate value. Defaults to 1. greater than 1 or less than 1. Defaults to 1.
         kCliqueCOMMtopic (int, optional): comunnity clique number. Defaults to 3. Defaults to 3.
         lowerText (bool, clean edges): lower all nodes . Defaults to True.
-        minLen (int, clean edges):  node text minimun length. Defaults to 3. 
+        nodeMinLen (int, clean edges):  node text minimun length. Defaults to 3. 
         keep_emoji(bool,clean edges): if keep or remove the emoji edges 
         removeNodes (list, clean edges): remove edges that have the specific nodes. Defaults to ['when','how','why','what','that','this','these','those','you','mine','ours','their','her','his'].
         unifySimliarNodes ( bool ): if unify the simliar nodes in the edges, Defualts to True , only take noun and verb. 
@@ -369,7 +374,7 @@ def netKPT(edgesDF,col1 = 'node1',col2 = 'node2',col1a ='node1a',col2a='node2a',
     Returns:
         topicDFnoun: topic by noun by centrality degree; 
         topicDFcomm: topic by community;
-        edgesDF1: clean edgesDF by lowerText, minLen, and removeModes;
+        edgesDF1: clean edgesDF by lowerText, nodeMinLen, and removeModes;
         edgesDF_vis: edgesDF weighted by edge groups for visualization;
         visNodes, visEdges : prepare for visnet visualization of the whole network;
     """
@@ -379,44 +384,23 @@ def netKPT(edgesDF,col1 = 'node1',col2 = 'node2',col1a ='node1a',col2a='node2a',
     if lowerText:
         edgesDF = edgesDF.map(lambda x: x.lower() if isinstance(x, str) else x)
      
-
-
-    
-    """if keep_emoji:
-
-        mask1 = (
-            (edgesDF['node1a'].str.len() < minLen) & ~has_emoji(edgesDF['node1a'])
-        ) | (edgesDF['node1a'].isin(removeNodes))
-
-        mask2 = (
-            (edgesDF['node2a'].str.len() < minLen) & ~has_emoji(edgesDF['node2a'])
-        ) | (edgesDF['node2a'].isin(removeNodes))
-        
-        edgesDF1 = edgesDF[~(mask1 | mask2)]
-        
-    else:
-        
-       mask1 = (edgesDF['node1a'].str.len() < minLen) | (edgesDF['node1a'].isin(removeNodes))
-       mask2 = (edgesDF['node2a'].str.len() < minLen) | (edgesDF['node2a'].isin(removeNodes))
-       edgesDF1 = edgesDF[~(mask1 | mask2)]""" 
-    
        
     if keep_emoji:
 
         mask1 = (
-            (edgesDF[col1a].str.len() < minLen) & ~has_emoji(edgesDF[col1a])
+            (edgesDF[col1a].str.len() < nodeMinLen) & ~has_emoji(edgesDF[col1a])
         ) | (edgesDF[col1a].isin(removeNodes))
 
         mask2 = (
-            (edgesDF[col2a].str.len() < minLen) & ~has_emoji(edgesDF[col2a])
+            (edgesDF[col2a].str.len() < nodeMinLen) & ~has_emoji(edgesDF[col2a])
         ) | (edgesDF[col2a].isin(removeNodes))
         
         edgesDF1 = edgesDF[~(mask1 | mask2)]
         
     else:
         
-       mask1 = (edgesDF[col1a].str.len() < minLen) | (edgesDF[col1a].isin(removeNodes))
-       mask2 = (edgesDF[col2a].str.len() < minLen) | (edgesDF[col2a].isin(removeNodes))
+       mask1 = (edgesDF[col1a].str.len() < nodeMinLen) | (edgesDF[col1a].isin(removeNodes))
+       mask2 = (edgesDF[col2a].str.len() < nodeMinLen) | (edgesDF[col2a].isin(removeNodes))
        edgesDF1 = edgesDF[~(mask1 | mask2)]    
        
     pbar.update(1)
@@ -503,7 +487,7 @@ def netKPT(edgesDF,col1 = 'node1',col2 = 'node2',col1a ='node1a',col2a='node2a',
                     "Name": ["Ave Sentiment"],
                     "Description": [round(sum(sentiments2)/len(sentiments2),2)]
                 })
-        if vis_description_df:
+        if vis_description_df is not None:
             visDF2 = vis_description_df
         else:
              visDF2 = visDF
