@@ -315,74 +315,6 @@ def communKPT(G, min_weight=1, k_clique=3, louvain_resolution = 1, method='louva
     return communityDF, topicDFnoun
 
 
-def communKPT_old(G, min_weight=1, k_clique=3, topicN=True, maxNOUNtopic=5):
-    """
-    Generates communities using k-clique percolation and extracts edges 
-    preserving the original source-target order from G.
-    """
-    # 1. Filter edges based on weight
-    # We use abs(d.get('weight', 0)) to handle cases where 'weight' might be missing
-    strong_edges = [
-        (u, v) for u, v, d in G.edges(data=True) 
-        if abs(d.get('weight', 1)) >= min_weight
-    ]
-     
-    G2 = G.to_undirected()
-    # Create the filtered graph for community detection
-    G_filtered = G2.edge_subgraph(strong_edges).copy()
-    
-    # 2. Find Communities
-    try:
-        communities = list(nx.community.k_clique_communities(G_filtered, k=k_clique))
-        #communities = list(nx.community.louvain_communities(G_filtered))
-        source_G = G_filtered
-    except Exception as e:
-        #print(f"K-clique failed on filtered graph: {e}. Falling back to original G.")
-        communities = list(nx.community.k_clique_communities(G, k=k_clique))
-        source_G = G
-    communities = sorted(list(communities), key=len, reverse=True)  # add 05.Jan.2026
-    # 3. Handle Topic Generation
-    if topicN:
-        # Assuming nounKPT is defined elsewhere
-        topicDFnoun = nounKPT(source_G, max_topic=maxNOUNtopic)
-    else:
-        topicDFnoun = pd.DataFrame()
-
-    #print(f"Found {len(communities)} communities.\n")
-
-    community_edges = []
-    community_is = []
-    community_nodes = []
-
-    # 4. Extract Data preserving Edge Orientation
-    for i, nodes in enumerate(communities):
-        nodes_set = set(nodes)
-        edges_with_data = []
-        
-        # We iterate over the ORIGINAL G edges to maintain 'starting -> targeting' order
-        # and only keep those where both nodes are in the current community
-        for u, v, data in G.edges(data=True):
-            #print('G2-u-v',u,v)
-            if u in nodes_set and v in nodes_set:
-                weight = data.get('weight', None)
-                if weight is not None:
-                    edges_with_data.append((u, v, weight))
-                else:
-                    edges_with_data.append((u, v))
-                    
-        community_edges.append(edges_with_data)
-        community_is.append(i)
-        community_nodes.append(list(nodes))
-        
-    communityDF = pd.DataFrame({
-        'community_no': community_is, 
-        'community_nodes': community_nodes,
-        'community_edges': community_edges
-    })
-    
-    return communityDF, topicDFnoun
-
-
 emoji_pattern = r'[\U00010000-\U0010ffff]'
 
 def has_emoji(series):
@@ -739,3 +671,4 @@ if __name__ == "__main__":
 
     Example Output (Topic Sentence):
     "In Finland, the food is generally good and delicious, with plenty of drinks available, though some dishes may not be enjoyable or suitable for everyone."""
+
