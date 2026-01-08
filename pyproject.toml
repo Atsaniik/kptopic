@@ -4,7 +4,7 @@ requires = ["setuptools>=61.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "kptopic" # The name that will appear on PyPI
+name = "kptopic" 
 version = "0.0.12"
 authors = [
     {name = "Peng (Atsaniik) Yang", email = "peng.yang@uef.fi"},
@@ -17,7 +17,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = [ # Packages your code needs to run
+dependencies = [ 
  
      
     "networkx",
@@ -36,6 +36,7 @@ dependencies = [ # Packages your code needs to run
 
 [tool.setuptools.packages]
 find = {} # Automatically find all packages
+
 
 
 
