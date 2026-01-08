@@ -561,7 +561,7 @@ def visTopic(edges:List[list], vis_network_title = 'Atsaniik',
     """
     if len(edges) < 1:
         raise ValueError("topic edges must have at least 1 edge")
-    visNodesTopic, visEdgesTopic,nodeDegreeDF =preVisnet(edges,colorNOUN = colorNOUN, shapeNOUN= shapeNOUN,
+    visNodesTopic, visEdgesTopic,nodeDegreeDF,edgeWeightDF =preVisnet(edges,colorNOUN = colorNOUN, shapeNOUN= shapeNOUN,
              colorADJ = colorADJ, shapeADJ = shapeADJ,
              colorVERB = colorVERB, shapeVERB = shapeVERB,
              colorADV =colorADV, shapeADV = shapeADV,
@@ -599,7 +599,7 @@ def visTopic(edges:List[list], vis_network_title = 'Atsaniik',
     min_default_edge_width = vis_min_default_edge_width,
     maximum_display = vis_maximum_display) 
     
-    return visNodesTopic, visEdgesTopic,nodeDegreeDF
+    return visNodesTopic, visEdgesTopic,nodeDegreeDF,edgeWeightDF
 
 
 
