@@ -10,8 +10,8 @@
 
 *  No more Topic Modeling
 *  No need Training 
-*  No more Machine Learning but Human-like Reading
-*  Get the Insights of Text Big and Small
+*  Text Big + Small
+*  Emoji + Sentiment Score 
 
 KPTopic: a graph-based approach to represent perception (text in general) by key parts of speech. KPTopic solved the coherence crux that current topic modeling algorithms are trying to deal with but failed. KPTopic extracts the topics from text corpus syntactically, semantically and pragmatically instead of a meaningless combination of words from topic modeling.
 
@@ -35,16 +35,7 @@ src="https://github.com/pengKiina/KPTopic/raw/main/images/keyparts_sent_network.
 ## Installation
 
 ```bash
-if need coreferee: 
- pip install kptopic[coreferee_spacy] 
- #!pip install kptopic[crosslingual-coreference_spacy] # a alternative coreference package 
- python3 -m coreferee install en 
- python -m spacy download en_core_web_lg 
-
-else:
- pip install spacy 
  pip install kptopic  
- python -m spacy download en_core_web_lg
 ```
 
 
@@ -56,9 +47,6 @@ with one of the examples as follows:
 | Name  | Link  |
 |---|---|
 | KPTopic Quick Start | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1hjAU-_RP7GGMm6rnpdJZR7LSY0KS81E?usp=sharing) |
-| KPTopic with Real Example  | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1VdKItMMcYRnXsne87azY7B1FXp9FpD1?usp=sharing)  |
-| KPTopic VS Topic Modelling |  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/14XvyCMBZ2oUnjpZhnf_658paVdvAhp0?usp=sharing) |
-| KPTopic Network Comparison |  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1vTx9wIGXt5so5IdOr4zsqrgSm4sHnYe?usp=sharing)  |
 
 ## Visualization Examples 
 * 1 NLP Target  
