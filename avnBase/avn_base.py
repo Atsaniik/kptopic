@@ -205,57 +205,35 @@ def is_ascii_word(word):
         return True
     except UnicodeEncodeError:
         return False
+        
 spell = SpellChecker()
-def spellCorrect(text,nonCheckWords = ['offf'],method='textblob'):
-    """_summary_
 
-    Args:
-        text (_type_): _description_
-        nonCheckWords (list, optional): case sensative. Defaults to ['offf'].
-
-    Returns:
-        _type_: _description_
-    """
+nlp_sim = spacy.load("en_core_web_sm", disable=["parser", "ner"])
+def spellCorrect(text, nonCheckWords=['astsaniik']):
+    doc = nlp_sim(text)
+    corrected_tokens = []
     
-    if method=='textblob':
+    for token in doc:
+        # Get the raw text of the token
+        t_text = token.text
         
-        replacements = {}
-        sentence = text
-        for i, word in enumerate(nonCheckWords):
-            placeholder = f"WORDTOKEN2ok{i}"
-            replacements[placeholder] = word
-            # Use regex with word boundaries (\b) to avoid partial replacements
-            sentence = re.sub(rf'\b{word}\b', placeholder, sentence,)
-
-        # 2. Run TextBlob correction
-        blob = TextBlob(sentence)
-        corrected_sentence = str(blob.correct())
-
-        # 3. Swap the protected words back in
-        for placeholder, original in replacements.items():
-            corrected_sentence = corrected_sentence.replace(placeholder, original)
-        
-        return corrected_sentence
-        # Split text into words and punctuation
-    else:
-        tokens = text.split()
-        spell.word_frequency.load_words(nonCheckWords)
-        corrected_tokens = []
-        for token in tokens:
-            if token.isalpha() and is_ascii_word(token):
-                corrected = spell.correction(token)
-                
-                corrected_tokens.append(corrected if corrected else token)
-            elif len(token)>0:
-                corrected_tokens.append(token)
-                
+        # LOGIC: Only correct if:
+        # 1. It's alphabetic (spacy handles this well)
+        # 2. It's not a 'Like' URL or Email (spacy built-in flags)
+        # 3. It's not in your protected list
+        if (token.is_alpha and 
+            not token.like_url and 
+            not token.like_email and 
+            t_text not in nonCheckWords and is_ascii_word(t_text)):
             
-        return " ".join(
-            corrected_tokens
-                        )
-    
-
-
+            corrected_tokens.append(str(Word(t_text).correct()))
+        else:
+            corrected_tokens.append(t_text)
+            
+        # Add the whitespace that originally followed the token
+        corrected_tokens.append(token.whitespace_)
+            
+    return "".join(corrected_tokens)
 
 
 class MaverickCoref:
@@ -1235,3 +1213,4 @@ if __name__ == "__main__":
         
         print(edge)
     
+
