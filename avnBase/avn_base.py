@@ -1189,7 +1189,10 @@ def preVisnet(weighted_edges, colorNOUN = 'skyblue', shapeNOUN= 'box',
     # Calculate global sentiment for coloring
     #global_sentiment = edgesDF.groupby(['node1', 'node2']).agg(sentiment=('sentiment', lambda x: x.mode().iat[0])).reset_index()
     #edges_viz = pd.merge(edgesDF_global, global_sentiment, on=['node1','node2'])
-
+    edge_froms = []
+    edge_tos = []
+    edge_weights = []
+    edge_sentiments = []
     for edge in  weighted_edges1:
       
         node1  = edge[0]
@@ -1211,8 +1214,13 @@ def preVisnet(weighted_edges, colorNOUN = 'skyblue', shapeNOUN= 'box',
             
         visEdge = {"from": node1, "to": node2, "width": abs(weight), "color": {"color": color}, "arrows": "to", "title": f"weight-sentiment: {weight}-{sentiment}"}
         visEdges.append(visEdge)
+        edge_froms.append(node1)
+        edge_tos.append(node2)
+        edge_weights.append(weight)
+        edge_sentiments.append(sentiment)
+    edgeWeightDF = pd.DataFrame({'edge_from':edge_froms,'edge_to':edge_tos,'edge_weight':edge_weights,'edge_sentiment':edge_sentiments})
         
-    return visNodes, visEdges,nodeDegreeDF 
+    return visNodes, visEdges,nodeDegreeDF,edgeWeightDF
 
 
 
