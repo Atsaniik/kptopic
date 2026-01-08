@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kptopic" # The name that will appear on PyPI
-version = "0.0.11"
+version = "0.0.12"
 authors = [
     {name = "Peng (Atsaniik) Yang", email = "peng.yang@uef.fi"},
 ]
@@ -36,6 +36,7 @@ dependencies = [ # Packages your code needs to run
 
 [tool.setuptools.packages]
 find = {} # Automatically find all packages
+
 
 
 
