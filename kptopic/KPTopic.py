@@ -7,13 +7,12 @@ from tqdm import tqdm
 from datetime import datetime
 import time
 from typing import List, Optional,Dict
+import sys
 
 nlp = spacy.load("en_core_web_sm")
 nlp.add_pipe("custom_sentencizer", before="parser") 
 
 
-
-import sys
 
 def print_progress(current, total, bar_length=20,printText ='Generating AAVN Edges'):
     percent = current / total * 100
@@ -24,10 +23,6 @@ def print_progress(current, total, bar_length=20,printText ='Generating AAVN Edg
         f'\r{printText}: |{bar}| {percent:6.2f}% Completed. '
     )
     sys.stdout.flush()
-
-
-
-
 
 
 from spacy.tokenizer import Tokenizer
@@ -525,14 +520,18 @@ def netKPT(edgesDF:pd.DataFrame,col1 = 'node1',col2 = 'node2',col1a ='node1a',co
     pbar.close() # Clean up the bar from the terminal
     return topicDFnoun, topicDFcomm,edgesDF1,edgesDF_global, edges_viz,nodeDegreeDF, visNodes, visEdges,similarNodesDF
     
-def visTopic(edges, vis_network_title = 'Atsaniik',
+def visTopic(edges:List[list], vis_network_title = 'Atsaniik',
             vis_description_df = None,
             vis_description_title = "Introduce your network",
             vis_writeHTML = None,
             vis_browserView= False,
             vis_min_default_node_size= 0,
             vis_min_default_edge_width = 0,
-            vis_maximum_display = 100):
+            vis_maximum_display = 100,colorNOUN = 'skyblue', shapeNOUN= 'box',
+             colorADJ = 'gold', shapeADJ = 'triangle',
+             colorVERB = 'pink', shapeVERB = 'square',
+             colorADV ='brown', shapeADV = 'star',
+             zeroWeightC = 'black',posWeightC ='green',negWeightC ='red',):
     """visualize the topic based on the aavn weighted edges + generatation of sentiment of edge
 
     Args:
@@ -545,13 +544,28 @@ def visTopic(edges, vis_network_title = 'Atsaniik',
         vis_min_default_node_size (int, optional): _description_. Defaults to 0.
         vis_min_default_edge_width (int, optional): _description_. Defaults to 0.
         vis_maximum_display (int, optional): _description_. Defaults to 100.
+        colorNOUN (str, optional): _description_. Defaults to 'skyblue'.
+        shapeNOUN (str, optional): _description_. Defaults to 'box'.
+        colorADJ (str, optional): _description_. Defaults to 'gold'.
+        shapeADJ (str, optional): _description_. Defaults to 'triangle'.
+        colorVERB (str, optional): _description_. Defaults to 'pink'.
+        shapeVERB (str, optional): _description_. Defaults to 'square'.
+        colorADV (str, optional): _description_. Defaults to 'brown'.
+        shapeADV (str, optional): _description_. Defaults to 'star'.
+        zeroWeightC (str, optional): _description_. Defaults to 'black'.
+        posWeightC (str, optional): _description_. Defaults to 'green'.
+        negWeightC (str, optional): _description_. Defaults to 'red'.
 
     Returns:
         visnet nodes,visnet edges and nodedegree: visNodesTopic, visEdgesTopic,nodeDegreeDF
     """
     if len(edges) < 1:
         raise ValueError("topic edges must have at least 1 edge")
-    visNodesTopic, visEdgesTopic,nodeDegreeDF =preVisnet(edges)
+    visNodesTopic, visEdgesTopic,nodeDegreeDF =preVisnet(edges,colorNOUN = colorNOUN, shapeNOUN= shapeNOUN,
+             colorADJ = colorADJ, shapeADJ = shapeADJ,
+             colorVERB = colorVERB, shapeVERB = shapeVERB,
+             colorADV =colorADV, shapeADV = shapeADV,
+             zeroWeightC = zeroWeightC,posWeightC =posWeightC,negWeightC =negWeightC)
     sentiments = []
     for edge in visEdgesTopic:
         sentiments.append (float(edge['title'].split('-')[-1]))
@@ -671,4 +685,3 @@ if __name__ == "__main__":
 
     Example Output (Topic Sentence):
     "In Finland, the food is generally good and delicious, with plenty of drinks available, though some dishes may not be enjoyable or suitable for everyone."""
-
