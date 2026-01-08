@@ -35,7 +35,8 @@ src="https://github.com/pengKiina/KPTopic/raw/main/images/keyparts_sent_network.
 ## Installation
 
 ```bash
- pip install kptopic  
+ # pip install kptopic
+ # pip install git+https://github.com/Atsaniik/kptopic.git  
 ```
 
 
