@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kptopic" 
-version = "0.0.12"
+version = "0.0.13"
 authors = [
     {name = "Peng (Atsaniik) Yang", email = "peng.yang@uef.fi"},
 ]
@@ -36,6 +36,7 @@ dependencies = [
 
 [tool.setuptools.packages]
 find = {} # Automatically find all packages
+
 
 
 
