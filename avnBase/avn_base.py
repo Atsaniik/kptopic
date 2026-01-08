@@ -14,7 +14,7 @@ from nltk.sentiment import SentimentIntensityAnalyzer
 from nltk.corpus import wordnet as wn
 import networkx as nx
 import ast
-
+from textblob import TextBlob
 # ADJ -ADV, ADJ -NOUN, ADV-VERB, VERB-NOUN 
 #text = "girls has extremely wonderful food and drink, boy are loved deeply by grandparents."
 
@@ -206,34 +206,55 @@ def is_ascii_word(word):
     except UnicodeEncodeError:
         return False
 spell = SpellChecker()
-def spellCorrect(text,nonCheckWords = ['offf']):
+def spellCorrect(text,nonCheckWords = ['offf'],method='textblob'):
     """_summary_
 
     Args:
         text (_type_): _description_
-        nonCheckWords (list, optional): _description_. Defaults to ['offf'].
+        nonCheckWords (list, optional): case sensative. Defaults to ['offf'].
 
     Returns:
         _type_: _description_
     """
     
-    
-    # Split text into words and punctuation
-    tokens = text.split()
-    spell.word_frequency.load_words(nonCheckWords)
-    corrected_tokens = []
-    for token in tokens:
-        if token.isalpha() and is_ascii_word(token):
-            corrected = spell.correction(token)
-            
-            corrected_tokens.append(corrected if corrected else token)
-        elif len(token)>0:
-            corrected_tokens.append(token)
-            
+    if method=='textblob':
         
-    return " ".join(
-        corrected_tokens
-                    )
+        replacements = {}
+        sentence = text
+        for i, word in enumerate(nonCheckWords):
+            placeholder = f"WORDTOKEN2ok{i}"
+            replacements[placeholder] = word
+            # Use regex with word boundaries (\b) to avoid partial replacements
+            sentence = re.sub(rf'\b{word}\b', placeholder, sentence,)
+
+        # 2. Run TextBlob correction
+        blob = TextBlob(sentence)
+        corrected_sentence = str(blob.correct())
+
+        # 3. Swap the protected words back in
+        for placeholder, original in replacements.items():
+            corrected_sentence = corrected_sentence.replace(placeholder, original)
+        
+        return corrected_sentence
+        # Split text into words and punctuation
+    else:
+        tokens = text.split()
+        spell.word_frequency.load_words(nonCheckWords)
+        corrected_tokens = []
+        for token in tokens:
+            if token.isalpha() and is_ascii_word(token):
+                corrected = spell.correction(token)
+                
+                corrected_tokens.append(corrected if corrected else token)
+            elif len(token)>0:
+                corrected_tokens.append(token)
+                
+            
+        return " ".join(
+            corrected_tokens
+                        )
+    
+
 
 
 
