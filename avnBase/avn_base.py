@@ -2,7 +2,6 @@ import os,re,spacy
 from unidecode import unidecode
 import torch
 import pandas as pd
-from maverick import Maverick
 from typing import List
 from spacy.language import Language
 import unicodedata
@@ -230,7 +229,13 @@ def spellCorrect(text, nonCheckWords=['astsaniik']):
             
     return "".join(corrected_tokens)
 
-
+try:
+    from maverick import Maverick
+    maverickInstalled =True
+except:
+    def Maverick():
+        maverickInstalled = False
+        
 
 
 class MaverickCoref:
@@ -251,6 +256,10 @@ class MaverickCoref:
     # pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124 , instll the cuda 
 
     """
+    if maverickInstalled:
+        pass
+    else:
+        print("coreference is not working,please install maverick-coref")
     _model = None
     _device = None
     
@@ -1210,3 +1219,4 @@ if __name__ == "__main__":
         
         print(edge)
     
+
