@@ -234,7 +234,8 @@ try:
     maverickInstalled =True
 except:
     maverickInstalled = False
-    def Maverick():
+    def Maverick(hf_name_or_path=None,
+                    device=None):
         pass
 
 
@@ -1220,6 +1221,7 @@ if __name__ == "__main__":
         
         print(edge)
     
+
 
 
 
