@@ -6,10 +6,11 @@ def _setup_resources():
     # NLTK Resources
     for resource in ['wordnet', 'vader_lexicon', 'punkt']:
         try:
-            nltk.data.find(f'corpora/{resource}' if resource != 'vader_lexicon' else f'sentiment/{resource}')
+            nltk.download(resource, quiet=True)
+            
         except LookupError:
             print(f"--- Initializing: Downloading NLTK '{resource}' ---")
-            nltk.download(resource, quiet=True)
+            nltk.data.find(f'corpora/{resource}' if resource != 'vader_lexicon' else f'sentiment/{resource}')
 
     try:
         spacy.load("en_core_web_sm")
@@ -20,3 +21,4 @@ def _setup_resources():
 
 # Call this at the end of your __init__.py or before the first NLP task
 _setup_resources()
+
