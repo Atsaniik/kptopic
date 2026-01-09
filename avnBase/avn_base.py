@@ -233,9 +233,10 @@ try:
     from maverick import Maverick
     maverickInstalled =True
 except:
+    maverickInstalled = False
     def Maverick():
-        maverickInstalled = False
-        return maverickInstalled
+        pass
+
 
 
 class MaverickCoref:
@@ -1219,5 +1220,6 @@ if __name__ == "__main__":
         
         print(edge)
     
+
 
 
