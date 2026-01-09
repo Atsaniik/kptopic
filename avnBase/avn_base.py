@@ -1,5 +1,3 @@
-
-from spellchecker import SpellChecker
 import os,re,spacy
 from unidecode import unidecode
 import torch
@@ -14,7 +12,7 @@ from nltk.sentiment import SentimentIntensityAnalyzer
 from nltk.corpus import wordnet as wn
 import networkx as nx
 import ast
-from textblob import TextBlob
+from textblob import Word
 # ADJ -ADV, ADJ -NOUN, ADV-VERB, VERB-NOUN 
 #text = "girls has extremely wonderful food and drink, boy are loved deeply by grandparents."
 
@@ -198,15 +196,12 @@ def merge_emoji_tokens(doc):
     return doc
 
 
-
 def is_ascii_word(word):
     try:
         word.encode("ascii")
         return True
     except UnicodeEncodeError:
         return False
-        
-spell = SpellChecker()
 
 nlp_sim = spacy.load("en_core_web_sm", disable=["parser", "ner"])
 def spellCorrect(text, nonCheckWords=['astsaniik']):
@@ -234,6 +229,8 @@ def spellCorrect(text, nonCheckWords=['astsaniik']):
         corrected_tokens.append(token.whitespace_)
             
     return "".join(corrected_tokens)
+
+
 
 
 class MaverickCoref:
@@ -1213,4 +1210,3 @@ if __name__ == "__main__":
         
         print(edge)
     
-
