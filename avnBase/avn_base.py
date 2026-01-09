@@ -235,7 +235,7 @@ try:
 except:
     def Maverick():
         maverickInstalled = False
-        
+        return maverickInstalled
 
 
 class MaverickCoref:
@@ -1219,4 +1219,5 @@ if __name__ == "__main__":
         
         print(edge)
     
+
 
