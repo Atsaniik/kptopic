@@ -258,10 +258,12 @@ class MaverickCoref:
     # pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124 , instll the cuda 
 
     """
-    if maverickInstalled:
-        pass
-    else:
-        print("coreference is not working,please install maverick-coref")
+    if not maverickInstalled:
+        raise ImportError(
+            "Coreference is not working. Please install maverick-coref."
+        )
+
+    
     _model = None
     _device = None
     
@@ -1221,6 +1223,7 @@ if __name__ == "__main__":
         
         print(edge)
     
+
 
 
 
