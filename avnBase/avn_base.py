@@ -504,7 +504,8 @@ def cleanText(text, nlp, det=None, valid_particles =None, number_words=True, cle
     """
     if det is None:
         det = ["a", "an", "the"]
-    text = re.sub(r'([()\[\]{}])', r' \1 ', text)  # make space before and after both (,)
+    #text = re.sub(r'([()\[\]{}])', r' \1 ', text)  # make space before and after both (,)
+    text = text.replace("(", " ( ").replace(")", " ) ").replace("[", " [ ").replace("]", " ] ").replace("{", " { ").replace("}", " } ") # add 10.01.2026
     #doc = nlp(text)
     doc = docRetoken(text, nlp,reADJ=reADJ, reADV=reADV,
                          reVERB=reVERB , reNOUN=reNOUN,
@@ -1217,6 +1218,7 @@ if __name__ == "__main__":
         
         print(edge)
     
+
 
 
 
