@@ -47,7 +47,7 @@ with one of the examples as follows:
 
 | Name  | Link  |
 |---|---|
-| KPTopic Quick Start | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1hjAU-_RP7GGMm6rnpdJZR7LSY0KS81E?usp=sharing) |
+| KPTopic Quick Start | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1wojipc1hdPh4ubQ05s_vHUm7S6HZhjkn?usp=sharing) |
 
 ## Visualization Examples 
 * 1 NLP Target  
