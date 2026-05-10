@@ -46,20 +46,16 @@ with one of the examples as follows:
 | KPTopic Quick Start | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1wojipc1hdPh4ubQ05s_vHUm7S6HZhjkn?usp=sharing) |
 
 ## Visualization Examples 
+
 * 1 Community Construction 
-
 The following is one of the communities generated from a example of corpus comprised of reviews by those who visit Finland.
-
 <img src="https://github.com/Atsaniik/kptopic/blob/main/images/community%20image.png" width="90%" height="90%" align="center" />
 
 * 2 Topic Generated 
-
 The following topic is generated from the community network.
-
 <img src="https://github.com/Atsaniik/kptopic/blob/main/images/topic_AI.png" width="90%" height="35%" align="center" />
 
 * 3 Key Parts of Speech 
-
 <img src="https://github.com/Atsaniik/kptopic/blob/main/images/keyparts.png" width="90%" height="50%" align="center" />
 
 * 4 Sentiment Distribution
