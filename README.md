@@ -52,19 +52,21 @@ with one of the examples as follows:
 ## Visualization Examples 
 * 1 NLP Target  
 
-Original sentence: """Thai food was great,delicousr and not expensive, we loved it. We visited 3 beach resorts, they are higly recommened... We had "Fire-Vodka" !!!"""
+Original sentence: """Finland also has beautiful lakes , traditional Sauna, we especially love the Sauna and 🎅 ,   we will definitely come to Finland again."""
 
-<img src="https://github.com/pengKiina/KPTopic/raw/main/images/nlp_target.png" width="70%" height="35%" align="center" />
+<img src="https://github.com/pengKiina/KPTopic/raw/main/images/sentence_network.png" width="70%" height="35%" align="center" />
 
-* 2 Keyparts Wordclouds
+* 2 Community and Topic 
 
-The following wordclouds are generated from a real example of corpus comprised of reviews by those who visit Thailand.
+The following topic is generated from a example of corpus comprised of reviews by those who visit Finland.
 
-<img src="https://github.com/pengKiina/KPTopic/raw/main/images/keypart_wrdcloud.png" width="35%" height="35%" align="center" />
+<img src="https://github.com/pengKiina/KPTopic/raw/main/images/community imaged.png" width="35%" height="35%" align="center" />
+<img src="https://github.com/pengKiina/KPTopic/raw/main/images/topic_AI.png" width="35%" height="35%" align="center" />
 
-* 3 Community and Gray Perceptual Unit Networks 
+* 3 Key Parts of Speech and Sentiment 
 
-<img src="https://github.com/pengKiina/KPTopic/raw/main/images/communit_gray.gif" width="70%" height="50%" align="center" />
+<img src="https://github.com/pengKiina/KPTopic/raw/main/images/keyparts.png" width="70%" height="50%" align="center" />
+<img src="https://github.com/pengKiina/KPTopic/raw/main/images/sentiment.png" width="70%" height="50%" align="center" />
 
 
 
