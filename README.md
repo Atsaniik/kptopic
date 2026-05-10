@@ -18,18 +18,14 @@ KPTopic: a graph-based approach to represent perception (text in general) by key
 
 ## Key Parts: Noun, Adjective, Verb and Emoji 
 
-KPTopic Vs Topic Modeling results from the following text:
+KPTopic result from the following sentence:
 
-``` “Thai food was great we loved it. Thiland also has beautiful beach resorts, we will come to Thailand again👍” ```
+``` “Finland also has beautiful lakes , traditional Sauna, we especially love the Sauna and 🎅 ,   we will definitely come to Finland again.” ```
 
 * KPTopic Result 
 
 <img style="border:1px solid black"
-src="https://github.com/pengKiina/KPTopic/blob/main/images/keyparts_sent_network.png" width="40%" height="40%" align="center" />
-
-* Topic Modeling Result
-
-```['food','thailand','resort','great','love', 'beautiful']```
+src="https://github.com/Atsaniik/kptopic/blob/main/images/sentence_network.png" width="40%" height="40%" align="center" />
 
 
 ## Installation
@@ -50,22 +46,23 @@ with one of the examples as follows:
 | KPTopic Quick Start | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1wojipc1hdPh4ubQ05s_vHUm7S6HZhjkn?usp=sharing) |
 
 ## Visualization Examples 
-* 1 NLP Target  
-
-Original sentence: """Finland also has beautiful lakes , traditional Sauna, we especially love the Sauna and 🎅 ,   we will definitely come to Finland again."""
-
-<img src="https://github.com/pengKiina/KPTopic/blob/main/images/sentence_network.png" width="70%" height="35%" align="center" />
-
-* 2 Community and Topic 
+* 1 Community Construction 
 
 The following topic is generated from a example of corpus comprised of reviews by those who visit Finland.
 
-<img src="https://github.com/pengKiina/KPTopic/blob/main/images/community imaged.png" width="35%" height="35%" align="center" />
-<img src="https://github.com/pengKiina/KPTopic/blob/main/images/topic_AI.png" width="35%" height="35%" align="center" />
+<img src="https://github.com/Atsaniik/kptopic/blob/main/images/community imaged.png" width="70%" height="35%" align="center" />
 
-* 3 Key Parts of Speech and Sentiment 
+* 2 Topic Generated 
+
+The following topic is generated from a example of corpus comprised of reviews by those who visit Finland.
+
+<img src="https://github.com/Atsaniik/kptopic/blob/main/images/topic_AI.png" width="35%" height="35%" align="center" />
+
+* 3 Key Parts of Speech 
 
 <img src="https://github.com/pengKiina/KPTopic/raw/main/images/keyparts.png" width="70%" height="50%" align="center" />
+
+* 4 Sentiment Result 
 <img src="https://github.com/pengKiina/KPTopic/raw/main/images/sentiment.png" width="70%" height="50%" align="center" />
 
 
