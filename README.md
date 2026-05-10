@@ -47,18 +47,22 @@ with one of the examples as follows:
 
 ## Visualization Examples 
 
-* 1 Community Construction 
+* 1 Community Construction
+*  
 The following is one of the communities generated from a example of corpus comprised of reviews by those who visit Finland.
 <img src="https://github.com/Atsaniik/kptopic/blob/main/images/community%20image.png" width="90%" height="90%" align="center" />
 
-* 2 Topic Generated 
+* 2 Topic Generated
+* 
 The following topic is generated from the community network.
 <img src="https://github.com/Atsaniik/kptopic/blob/main/images/topic_AI.png" width="90%" height="35%" align="center" />
 
-* 3 Key Parts of Speech 
+* 3 Key Parts of Speech
+* 
 <img src="https://github.com/Atsaniik/kptopic/blob/main/images/keyparts.png" width="90%" height="50%" align="center" />
 
 * 4 Sentiment Distribution
+* 
 <img src="https://github.com/Atsaniik/kptopic/blob/main/images/sentiment.png" width="80%" height="50%" align="center" />
 
 
