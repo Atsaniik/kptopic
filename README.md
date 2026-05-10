@@ -25,7 +25,7 @@ KPTopic Vs Topic Modeling results from the following text:
 * KPTopic Result 
 
 <img style="border:1px solid black"
-src="https://github.com/pengKiina/KPTopic/raw/main/images/keyparts_sent_network.png" width="40%" height="40%" align="center" />
+src="https://github.com/pengKiina/KPTopic/blob/main/images/keyparts_sent_network.png" width="40%" height="40%" align="center" />
 
 * Topic Modeling Result
 
@@ -54,14 +54,14 @@ with one of the examples as follows:
 
 Original sentence: """Finland also has beautiful lakes , traditional Sauna, we especially love the Sauna and 🎅 ,   we will definitely come to Finland again."""
 
-<img src="https://github.com/pengKiina/KPTopic/raw/main/images/sentence_network.png" width="70%" height="35%" align="center" />
+<img src="https://github.com/pengKiina/KPTopic/blob/main/images/sentence_network.png" width="70%" height="35%" align="center" />
 
 * 2 Community and Topic 
 
 The following topic is generated from a example of corpus comprised of reviews by those who visit Finland.
 
-<img src="https://github.com/pengKiina/KPTopic/raw/main/images/community imaged.png" width="35%" height="35%" align="center" />
-<img src="https://github.com/pengKiina/KPTopic/raw/main/images/topic_AI.png" width="35%" height="35%" align="center" />
+<img src="https://github.com/pengKiina/KPTopic/blob/main/images/community imaged.png" width="35%" height="35%" align="center" />
+<img src="https://github.com/pengKiina/KPTopic/blob/main/images/topic_AI.png" width="35%" height="35%" align="center" />
 
 * 3 Key Parts of Speech and Sentiment 
 
