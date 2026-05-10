@@ -50,7 +50,7 @@ with one of the examples as follows:
 
 The following topic is generated from a example of corpus comprised of reviews by those who visit Finland.
 
-<img src="https://github.com/Atsaniik/kptopic/blob/main/images/community imaged.png" width="70%" height="35%" align="center" />
+<img src="https://github.com/Atsaniik/kptopic/blob/main/images/community%20image.png" width="70%" height="35%" align="center" />
 
 * 2 Topic Generated 
 
@@ -60,10 +60,10 @@ The following topic is generated from a example of corpus comprised of reviews b
 
 * 3 Key Parts of Speech 
 
-<img src="https://github.com/pengKiina/KPTopic/raw/main/images/keyparts.png" width="70%" height="50%" align="center" />
+<img src="https://github.com/Atsaniik/kptopic/blob/main/images/keyparts.png" width="70%" height="50%" align="center" />
 
 * 4 Sentiment Result 
-<img src="https://github.com/pengKiina/KPTopic/raw/main/images/sentiment.png" width="70%" height="50%" align="center" />
+<img src="https://github.com/Atsaniik/kptopic/blob/main/images/sentiment.png" width="70%" height="50%" align="center" />
 
 
 
